@@ -580,6 +580,23 @@ public function save_remarks(Request $request)
     }
 
 
+  public function generatePDF( Request $request)
+    {
+
+        $id = $request->input('id');
+        $remarks = DB::table('remarks as id')
+                    ->where('id', $id)
+                    ->get();
+        $files = DB::table('files as id')
+                    ->where('id', $id)
+                    ->first();
+
+        $pdf = PDF::loadView('Admin-side/pdf_status', compact('remarks' , 'files'))->setPaper('a4', 'landscape');
+            
+        return $pdf->stream("invoice.pdf",array("Attachment" => false));
+          
+    
+    }
 
 
 

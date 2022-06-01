@@ -132,7 +132,7 @@
 						            </table>
 						          </div>
 									<div class="modal-footer">
-										<a href="download_status?id={{$f->docu_id}}" target="_blank" class="text-decoration-none">
+										<a href="{{ url('admin/pdf_status?id='.$f->id) }}" target="_blank" class="text-decoration-none">
 											<button title="PREVIEW" type="button" class="btn btn-success" >
 												<i class="fas fa-file-pdf"></i>
 											</button>

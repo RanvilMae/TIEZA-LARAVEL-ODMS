@@ -23,11 +23,11 @@ Route::get('/admin/addremarks', 'AdminController@addremarks');
 Route::get('/admin/post', 'AdminController@post');
 Route::post('/admin/save_addremarks', 'AdminController@save_addremarks');
 Route::post('/admin/save_remarks', 'AdminController@save_remarks');
+Route::get('/admin/download_status', 'AdminController@download_status');
 Route::post('/admin/generateqr', 'AdminController@generateqr');
 Route::get('/admin/pdfqr', 'AdminController@pdfqr');
 Route::get('/admin/viewdata', 'AdminController@viewdata');
 Route::get('/admin/logout', 'AdminController@logout');
-
-Route::get('/qr-code',[App\Http\Controllers\AdminController::class,'pdfqr'])->name('add-qr-code');
+Route::get('/admin/pdf_status', [AdminController::class, 'generatePDF']);
 
 Route::get('/attendance/sample', 'AdminController@index');
