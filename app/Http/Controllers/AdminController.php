@@ -443,12 +443,10 @@ public function save_remarks(Request $request)
                         $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
                        
                         $message = 'STATUS SUCCESSFULLY SAVED!';
-                        $user = Files::find($qrCode);
-                        
-                        $pdf = PDF::loadView('pdfqr', compact('user'));
-                        return $pdf->download($qrCode.'.pdf');
                     
-                        
+                        $pdf = PDF::loadView('Admin-side/pdfqr', compact('newdepartment', 'qrCode' , 'files', 'newid'))->setPaper('a4', 'portrait');
+            
+                        return $pdf->stream("qrCode.pdf",array("Attachment" => false));
                 }
   }
 
@@ -599,12 +597,10 @@ public function save_remarks(Request $request)
     }
 
 
-
     public function logout(Request $request)
         {
             $request->session()->flush();
             return redirect('/');
         }
-
     
 }
