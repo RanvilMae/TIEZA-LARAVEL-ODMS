@@ -19,15 +19,18 @@ Route::get('/admin/tagging', 'AdminController@tagging');
 Route::post('/admin/uploadprocess', 'AdminController@uploadprocess');
 Route::post('/admin/save_tag', 'AdminController@save_tag');
 Route::get('/admin/remarks', 'AdminController@remarks');
+Route::get('/admin/subfile', 'AdminController@subfile');
+Route::post('/admin/save_sub', 'AdminController@save_sub');
 Route::get('/admin/addremarks', 'AdminController@addremarks');
 Route::get('/admin/post', 'AdminController@post');
+Route::get('/admin/viewfile', 'AdminController@viewfile');
 Route::post('/admin/save_addremarks', 'AdminController@save_addremarks');
 Route::post('/admin/save_remarks', 'AdminController@save_remarks');
 Route::get('/admin/download_status', 'AdminController@download_status');
 Route::get('/admin/viewdata', 'AdminController@viewdata');
 Route::get('/admin/logout', 'AdminController@logout');
 Route::get('/admin/pdf_status', [AdminController::class, 'generatePDF']);
-Route::get('/admin/pdfqr', [AdminController::class, 'generateQR']);
+Route::get('/admin/pdfqr', [AdminController::class, 'generateQR'])->name('my-pdfqr');
 
 
 

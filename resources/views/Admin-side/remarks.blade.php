@@ -10,7 +10,7 @@
 
  <div class="container"> 
   	<div class="jumbotron">
-		<form action="save_remarks" method="post" enctype="multipart/form-data">
+		<form action="save_remarks" method="post" enctype="multipart/form-data" >
 	      <div class="form-group">
 				<div id="form-group">
 					<div class="row">
@@ -60,10 +60,13 @@
 						?>
 						@if($rem > 0)
 							@foreach($remarks as $r)
+							<tr>
 								<td style="border: 2px solid black;"> {{$r->status}} </td>
 								<td style="border: 2px solid black;"> {{$r->remarks}} </td>
 								<td style="border: 2px solid black;"> {{$r->date}} </td>
 								<td style="border: 2px solid black;"> {{$r->action}} </td>
+								
+							</tr>
 							@endforeach
 						@endif
 						</tbody> 
@@ -72,11 +75,11 @@
 			</div>
 			<div style="clear:both;"></div>
 				<div class=" float-right">
-					<button name="save" type="submit" class="btn btn-primary">
+					<button  name="save" type="submit" class="btn btn-primary" >
 						<i class="fas fa-upload"></i>
 					</button>
 					<a href="{{ url('tagging')}}" class="text-decoration-none">
-						<button type="button" class="btn btn-danger" >
+						<button  type="button" class="btn btn-danger" >
 							<i class="fas fa-window-close"></i>
 						</button>
 					</a>						

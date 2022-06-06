@@ -92,6 +92,12 @@
 											</a>
 									</button>
 
+									<button type="button" class="btn btn-primary" title="PREVIEW">
+										<a href="http://localhost/ODMS-laravel/storage/app/public/my_uploads/MISD/{{ $f->name }}" target="_blank" class="text-decoration-none" style="color:white;">
+											<i class="fas fa-eye"></i>
+										</a>
+									</button>
+
 
 							<!-- MODAL STATUS ----->
 							<div class="modal fade" id="myModall{{$f->docu_id}}" aria-hidden="true">
@@ -202,14 +208,14 @@
 						            </table>
 						          </div>
 									<div class="modal-footer">
-										<a href="download_status?id={{$f->docu_id}}" target="_blank" class="text-decoration-none">
+										<a href="{{ url('admin/download_status?record_id='.$f->docu_id) }}" target="_blank" class="text-decoration-none">
 											<button title="PREVIEW" type="button" class="btn btn-success" >
 												<i class="fas fa-file-pdf"></i>
 											</button>
 										</a>
-										<a href="remarks?id={{$f->docu_id}}" class="text-decoration-none">
+										<a href="{{ url('admin/subfile?record_id='.$f->docu_id) }}" class="text-decoration-none">
 											<button type="button" class="btn btn-primary" >
-												<i class="far fa-file"></i>
+												<i class="fas fa-folder-plus"></i>
 											</button>
 										</a>
 										<button class="btn btn-danger" type="button" data-dismiss="modal">

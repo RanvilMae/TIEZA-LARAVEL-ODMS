@@ -10,13 +10,13 @@
 
     <p style="font-size: 130px; font-family: Arial;">
         <strong>
-            {{$newid}}
+            {{$newid}} 
         </strong>
     </p>
     </center>
 <div>
-    <strong style="font-size: 130px; font-family: Arial; transform: rotate(90deg); float: right; position: relative;left: 90px; top: 160px;">
-            ODMS
+    <strong style="font-size: 60px; font-family: Arial; transform: rotate(90deg); float: right; position: relative;left: 90px; top: 200px;">
+            {{$newdepartment}} - ODMS
         </strong>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <img src="data:image/png;base64, {!! base64_encode(QrCode::size(500)->generate($qrCode)) !!} " style="">

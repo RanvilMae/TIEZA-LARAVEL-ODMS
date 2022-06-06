@@ -14,8 +14,10 @@ use App\Models\Tags;
 use App\Models\Category;
 use App\Models\Status;
 use App\Models\Remarks;
+use App\Models\Subfiles;
 use Carbon;
 use PDF;
+use Redirect;
 
 class AdminController extends Controller
 {
@@ -377,10 +379,95 @@ class AdminController extends Controller
                     
                         
                 }
-  }
+    }
 
 
-public function save_remarks(Request $request)
+
+    public function save_sub(Request $request){
+
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+
+        if ($request->has('submit')) 
+         {
+
+            $id = $request->session()->get('department');
+            $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+
+                $newsubject = $request->input('subject');
+                $newdocu_id = $request->input('docu_id');
+                $newdepartment = $request->input('department');
+                $newsub_docu = $request->input('sub_docu');
+                $newremarks = $request->input('remarks');
+                $newpages   = $request->input('pages');
+                $newmyfile = $request->file('myfile')->storeAs('public/my_uploads/'.$newdepartment.'/',$request->file('myfile')->getClientOriginalName());
+                $newaction  = $request->input('action');
+                $newdate = $request->input('date');
+                $mytime = Carbon\Carbon::now();
+
+                $name = $request->file('myfile')->getClientOriginalName();
+                if($name > 0)
+                {
+                    $message = "FILE ALREADY EXISTS! ";
+                }
+
+                $newproject = new Subfiles;
+                $newproject->primary_id  = NULL;
+                $newproject->id  = $newdocu_id;
+                $newproject->name  = $request->file('myfile')->getClientOriginalName();
+                $newproject->sub_docu  = $newsub_docu;
+                $newproject->date  = $mytime;
+                $newproject->remarks  = $newremarks;
+                $newproject->department  = $newdepartment;
+                $newproject->pages  = $newpages;
+                $newproject->action  = $newaction;
+                $newproject->subject  = $newsubject;
+                $newproject->track  = '0';
+                $newproject->viewed  = NULL;
+                $newproject->save() or die('ERROR ADDING NEW PROJECT!');
+            
+            $tiezaid = $request->input('tid');
+            $department = $request->input('department');
+            $newid = $request->input('docu_id');
+            $record_id = $request->input('record_id');
+
+            $files = DB::table('files as id')
+                    ->where('docu_id', $record_id)
+                    ->orderBy('date', 'DESC')
+                    ->first(); 
+
+            $status = DB::table('status as id')
+                    ->orderBy('status')
+                    ->get();
+            $archive = DB::table('archive as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $admin = DB::table('admin as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $users = DB::table('users as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $tags = DB::table('tags as id')
+                    ->where('id.tag', $tiezaid)
+                    ->Where('id.track', 0)
+                    ->count();
+
+            $mytime = Carbon\Carbon::now();
+            $month = $mytime->toFormattedDateString();
+            $date = $mytime->toTimeString();
+
+                $message='SUBFILE SUCCESSFULLY UPLOADED!  ';
+                return View::make('Admin-side/subfile',compact('message'))->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'mytime' => $mytime, 'tags' => $tags, 'id' => $id, 'newdocu_id' => $id, 'id' => $id, 'status' => $status, 'newsubject' => $newsubject, 'month' => $month, 'date' => $date, 'newid' => $newid, 'record_id' => $record_id]);
+         }
+    }
+
+
+
+    public function save_remarks(Request $request)
     {
         if($request->session()->get('department')==null){
         return redirect('/');
@@ -427,26 +514,24 @@ public function save_remarks(Request $request)
             $newdate = $request->input('date');
             $newstatus = $request->input('status');
             $newremarks = $request->input('remarks');
-
             $newaction = $request->input(['action']);
-
-               
-                        $newtag = new Remarks;
-                        $newtag->primary_id  = NULL;
-                        $newtag->id = $newid ;
-                        $newtag->remarks = $newremarks;
-                        $newtag->date = $mytime;
-                        $newtag->action = $newaction;
-                        $newtag->status = $newstatus;
-                        $newtag->tid = $newtid;
-                        $newtag->department= $newdepartment;
-                        $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
+                $newtag = new Remarks;
+                $newtag->primary_id  = NULL;
+                $newtag->id = $newid ;
+                $newtag->remarks = $newremarks;
+                $newtag->date = $mytime;
+                $newtag->action = $newaction;
+                $newtag->status = $newstatus;
+                $newtag->tid = $newtid;
+                $newtag->department= $newdepartment;
+                $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
                        
-                        $message = 'STATUS SUCCESSFULLY SAVED!';
+                $message = 'STATUS SUCCESSFULLY SAVED!';
                     
-                        $pdf = PDF::loadView('Admin-side/pdfqr', compact('newdepartment', 'qrCode' , 'files', 'newid'))->setPaper('a4', 'portrait');
+                $pdf = PDF::loadView('Admin-side/pdfqr', compact('newdepartment', 'qrCode' , 'files', 'newid'))->setPaper('a4', 'portrait');
             
-                        return $pdf->stream("qrCode.pdf",array("Attachment" => false));
+                $url =  $pdf->stream("qrCode.pdf",array("Attachment" => false));
+                        
                 }
   }
 
@@ -469,7 +554,8 @@ public function save_remarks(Request $request)
             $department = $tid->department;
             $files = DB::table('files as id')
                     ->where('id.department', $department)
-                    ->orderBy('date', 'DESC')
+                    ->orderBy('id', 'DESC')
+                    ->limit(50)
                     ->get();
             $archive = DB::table('archive as id')
                     ->where('id.department', $department)
@@ -534,6 +620,52 @@ public function save_remarks(Request $request)
             return View::make('Admin-side/remarks')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'mytime' => $mytime, 'tags' => $tags, 'id' => $id, 'newdocu_id' => $id, 'id' => $id, 'status' => $status, 'newsubject' => $newsubject, 'month' => $month, 'date' => $date, 'newid' => $newid]);
     }
 
+
+    public function subfile(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+            $id = $request->session()->get('department');
+            $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+            $tiezaid = $tid->tid;
+            $department = $tid->department;
+            $record_id = $request->input('record_id');
+            $files = DB::table('files as id')
+                    ->where('docu_id', $record_id)
+                    ->orderBy('date', 'DESC')
+                    ->first();
+
+            $newsubject = $files->docu_id;
+            $newid = $files->id;
+
+            $status = DB::table('status as id')
+                    ->orderBy('status')
+                    ->get();
+            $archive = DB::table('archive as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $admin = DB::table('admin as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $users = DB::table('users as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $tags = DB::table('tags as id')
+                    ->where('id.tag', $tiezaid)
+                    ->Where('id.track', 0)
+                    ->count();
+
+            $mytime = Carbon\Carbon::now();
+            $month = $mytime->toFormattedDateString();
+            $date = $mytime->toTimeString();
+            return View::make('Admin-side/subfile')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'mytime' => $mytime, 'tags' => $tags, 'id' => $id, 'newdocu_id' => $id, 'id' => $id, 'status' => $status, 'newsubject' => $newsubject, 'month' => $month, 'date' => $date, 'newid' => $newid, 'record_id' => $record_id]);
+    }
+
+
+
     public function addremarks(Request $request)
     {
         if($request->session()->get('department')==null){
@@ -592,6 +724,16 @@ public function save_remarks(Request $request)
         $pdf = PDF::loadView('Admin-side/pdf_status', compact('remarks' , 'files'))->setPaper('a4', 'landscape');
             
         return $pdf->stream("invoice.pdf",array("Attachment" => false));
+          
+    
+    }
+
+    public function viewfile( Request $request)
+    {
+
+        $name = $request->input('name');
+        $pdf = PDF::loadView('Admin-side/viewfile', compact('name' ))->setPaper('a4', 'portrait');
+        return $pdf->stream($name,array("Attachment" => false));
           
     
     }
