@@ -86,7 +86,7 @@
 					<button  name="submit" type="submit" class="btn btn-primary" >
 						<i class="fas fa-upload"></i>
 					</button>
-					<a href="{{ url('/subfile')}}" class="text-decoration-none">
+					<a href="{{ url('admin/viewdata')}}" class="text-decoration-none">
 						<button  type="button" class="btn btn-danger" >
 							<i class="fas fa-window-close"></i>
 						</button>

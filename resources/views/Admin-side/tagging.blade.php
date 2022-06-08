@@ -35,18 +35,27 @@
 							<label><strong>TAGGED TO:</strong></label>
 							<div style="overflow-x:auto;">
 								<table class="table table-bordered"  style="border: 2px solid black;">  
-									<td align="center" style="border: 2px solid black;"><strong>DATE</strong></td> 
-									<td align="center" style="border: 2px solid black;" ><strong>NAME</strong></td>
+									<td align="center" style="border: 2px solid black;">
+										<strong>NAME</strong>
+									</td> 
+									<td align="center" style="border: 2px solid black;" >
+										<strong>DATE</strong>
+									</td>
 									<tbody>
+										@foreach($get_tags as $gt)
 										<tr>
-								            <td width='50%' style='border: 2px solid black;'>
-								            	
-								            </td>
-											<td width='50%' style='border: 2px solid black;'>
-												
-											</td>
-							             </tr>
-							        </tbody>
+											<?php
+												$tag_id = $gt->tag;
+												echo $tag_id;
+								        $admin = DB::table('admin as u')
+								               ->where('tid', $tag_id)
+								               ->first();
+											?>
+								      <td style="border: 2px solid black;"><strong>{{$admin->department}} -</strong> {{$admin->lname}}, {{$admin->fname}}</td>
+											<td style="border: 2px solid black;">{{$gt->date}}</td>
+							      </tr>
+							      @endforeach
+							    </tbody>
 								</table>
 						</div>
 					</div>

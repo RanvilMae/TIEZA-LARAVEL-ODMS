@@ -91,12 +91,140 @@
 												<i class="fas fa-tags"></i>
 											</a>
 									</button>
+									
 
 									<button type="button" class="btn btn-primary" title="PREVIEW">
-										<a href="http://localhost/ODMS-laravel/storage/app/public/my_uploads/MISD/{{ $f->name }}" target="_blank" class="text-decoration-none" style="color:white;">
+										<a href="http://localhost/ODMS-laravel/storage/app/public/my_uploads/{{$f->department}}/{{ $f->name }}" target="_blank" class="text-decoration-none" style="color:white;">
 											<i class="fas fa-eye"></i>
 										</a>
 									</button>
+
+
+
+
+								<!-- MODAL tag ----->
+							<div class="modal fade" id="myTag{{$f->docu_id}}" aria-hidden="true">
+						      <div class="modal-dialog modal-lg">
+						        <div class="modal-content">
+						          <div class="modal-header">
+
+						          <h3 class="modal-title">TAGGING</h3>
+						        </div>
+						          <div class="modal-body">
+						  					<p>
+							  						<font face="verdana" color="green" class="float-left">
+							  							<strong>{{$f->subject}} </strong>
+							  						</font>
+							  					</p><br>
+							  					<hr>
+						  						<p>
+						  							<font face="Britannic Bold" class="float-left">
+						  								<strong>DEPARTMENTS</strong>
+						  							</font>
+						  						</p>
+						            <table class="table table-bordered">
+						              <thead>
+						                <tr>
+										 					<th class="tablecell">TAGGED TO</th>
+				 											<th class="tablecell">TAGGED DATE</th>
+				  										<th class="tablecell">ACTION</th>
+                  						<th class="tablecell" >VIEWED DATE</th>
+						                </tr>
+						             	</thead>
+						             	<?php
+														$tag_id = $f->id;
+														$tags = DB::table('tags as t')
+						                    ->where('t.id', $r_id)
+						                    ->get();
+													?>
+													@foreach($tags as $tag)
+														<tr>
+								             	<?php
+																$tag_id = $tag->tag;
+								                $admin = DB::table('admin as a')
+								                    ->where('tid', $tag_id)
+								                    ->first();
+															?>
+															<td> <strong>{{$admin->department}} -</strong> {{$admin->lname}}, {{$admin->fname}}</td>
+															<td> {{$tag->date}} </td>
+															<td> {{$tag->action}} </td>
+															<td> {{$tag->dateviewed}} </td>
+														
+														</tr>
+													@endforeach
+						            </table><br> <br>
+						            <p>
+						  							<font face="Britannic Bold" class="float-left">
+						  								<strong>{{$f->department}} PERSONNEL/S</strong>
+						  							</font>
+						  					</p>
+						  					<table class="table table-bordered">
+						              <thead>
+						                <tr>
+										 					<th class="tablecell">TAGGED TO</th>
+				 											<th class="tablecell">TAGGED DATE</th>
+				  										<th class="tablecell">ACTION</th>
+                  						<th class="tablecell" >VIEWED DATE</th>
+						                </tr>
+						             	</thead>
+						             	<?php
+														$tag_id = $f->id;
+														$tagto_personnels = DB::table('tagto_personnels as tp')
+						                    ->where('tp.id', $r_id)
+						                    ->get();
+													?>
+													@foreach($tagto_personnels as $tagp)
+														<tr>
+								             	<?php
+																$tag_id = $tagp->tag;
+								                $users = DB::table('users as u')
+								                    ->where('tid', $tag_id)
+								                    ->first();
+															?>
+															<td> <strong>{{$u->department}} -</strong> {{$u->lname}}, {{$u->fname}}</td>
+															<td> {{$tagp->date}} </td>
+															<td> {{$tagp->action}} </td>
+															<td> {{$tagp->dateviewed}} </td>
+														
+														</tr>
+													@endforeach
+						            </table>
+						          </div>
+									<div class="modal-footer">
+										<a href="{{ url('admin/pdf_subfile?id='.$f->id) }}" target="_blank" class="text-decoration-none">
+											<button title="PREVIEW" type="button" class="btn btn-success" >
+												<i class="fas fa-file-pdf"></i>
+											</button>
+										</a>
+										<button title="ADD TAG" class="btn btn-primary nav-link dropdown-toggle dropdown-toggle-split " data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="text-decoration-none;color:white;">
+											<i class="fas fa-user-plus"></i>
+										</button>
+											<div class="dropdown-menu">
+											    <a href="{{ url('admin/tag_tosector?id='.$f->id) }}" class="text-decoration-none" 		style="text-decoration-none;color:BLack;>">
+													&nbsp;&nbsp;&nbsp;<i class="fas fa-user-plus">&nbsp;&nbsp;SECTOR</i>
+												</a><br>
+												<a href="{{ url('admin/tagging?id='.$f->id) }}" class="text-decoration-none" 		style="text-decoration-none;color:BLack;>">
+													&nbsp;&nbsp;&nbsp;<i class="fas fa-user-plus">&nbsp;&nbsp;DEPARTMENT</i>
+												</a><br>
+												<a href="{{ url('admin/tag_todiv?id='.$f->id) }}" class="text-decoration-none" 		style="text-decoration-none;color:BLack;>">
+													&nbsp;&nbsp;&nbsp;<i class="fas fa-user-plus">&nbsp;&nbsp;DIVISION</i>
+												</a><br>
+												<a href="{{ url('admin/tag_admin?id='.$f->id) }}" class="text-decoration-none" style="text-decoration-none;color:BLack;>">
+														&nbsp;&nbsp;&nbsp;<i class="fas fa-user-plus">&nbsp;&nbsp;{{$f->department}} PERSONNEL&nbsp;&nbsp;</i>
+												</a>
+											</div>
+										<button class="btn btn-danger" type="button" data-dismiss="modal">
+											<i class="fas fa-window-close"></i>
+										</button>
+					
+									</div>
+
+						        </div>
+						        <!-- /.modal-content -->
+						      </div>
+						      <!-- /.modal-dialog -->
+						    </div>
+						    <!-- END MODAL tag----->
 
 
 							<!-- MODAL STATUS ----->
@@ -201,14 +329,18 @@
 															<td> {{$sub->department}} </td>
 															<td> {{$sub->action}} </td>
 															<td> 
-																<a href="https://localhost/ODMS-laravel/public/uploads/bg.png"></a>
+																<a href="http://localhost/ODMS-laravel/storage/app/public/my_uploads/{{$f->department}}/{{ $sub->name }}" target="_blank" class="text-decoration-none">
+																		<button class="btn btn-primary" >
+																			VIEW
+																		</button>
+																</a>
 															</td>
 														</tr>
 													@endforeach
 						            </table>
 						          </div>
 									<div class="modal-footer">
-										<a href="{{ url('admin/download_status?record_id='.$f->docu_id) }}" target="_blank" class="text-decoration-none">
+										<a href="{{ url('admin/pdf_subfile?id='.$f->id) }}" target="_blank" class="text-decoration-none">
 											<button title="PREVIEW" type="button" class="btn btn-success" >
 												<i class="fas fa-file-pdf"></i>
 											</button>
@@ -237,19 +369,20 @@
 						      <div class="modal-dialog modal-lg">
 						        <div class="modal-content">
 						          <div class="modal-header">
-
-						          <h3 class="modal-title">UPDATE</h3>
-						        </div>
+						          	<h3 class="modal-title">UPDATE</h3>
+						        	</div>
 						          <div class="modal-body">
 						  					<p>
 						  						<font face="verdana" color="green" class="float-left">
 						  							<strong>{{$f->subject}} </strong>
 						  						</font>
-						  					</p>
+						  					</p> <br>
+											<form action="update_file" method="post" enctype="multipart/form-data" >
 
-						  					<form>
-						  						<input type="hidden" name="id" value='{{$f->subject}}' />
-						  						{{csrf_field()}}
+
+
+						  						<input type="hidden" name="id" value='{{$f->id}}' />
+						  						<input type="hidden" name="department" value='{{$f->department}}' />
 						  						@if ($f->classification == 'Incoming')
 						  						<div class="row">
 														<div class="col" required>
@@ -261,7 +394,7 @@
 														<div class="col" required>
 															<p><input type="radio" id="chk2" name="restriction" value="Confidential" required /> <label><strong>Confidential</strong></label></p>
 														</div>
-													</div>
+													</div><br>
 						  						@else
 						  						<input type="hidden" name="restriction" value="Outgoing"/>	
 						  						@endif
@@ -269,13 +402,13 @@
 														<div class="col">
 															<label for="forw"><strong>For / To:</strong></label>
 															<input class="form-control" type="text" name="forw" placeholder="For:" 
-															value="{{$f->forw}}" />
+															value="{{$f->forw}}" readonly="read-only" />
 														</div><br>
 														
 														<div class="col">
 															<label for="from"><strong>From / Signatory:</strong></label>
 															<input class="form-control" type="text" name="fromw" placeholder="From:" 
-															 value="{{$f->fromw}}" />
+															 value="{{$f->fromw}}" readonly="read-only"/>
 															<br>
 														</div><br>
 
@@ -287,32 +420,46 @@
 															</div>
 															<div class="col">
 															 	<label><strong>Classification:</strong> </label>
-																<input name="classification" class="form-control" rows="5"  type="text" placeholder="Classification:" 
-															value="{{$f->classification}}" />
-															</div>
+																<input name="classification" class="form-control" rows="5"  type="text" readonly="read-only" value="{{$f->classification}}" />
+															</div><br>
 														</div><br>
 														<div class="form-row">
-															<div class="col">
+															<div class="col"><br>
 															 <label><strong>Category:</strong> </label>
 															<input class="form-control"  name="category"
-															 value="{{$f->category}}" />
-															</div>
+															 value="{{$f->category}}" readonly="read-only"/>
+															</div><br>
 															
-															<div class="col">
+															<div class="col"><br>
 															 <label><strong># Pages:</strong> </label>
 															<input class="form-control"  name="pages" placeholder="Pages:"
-															 value="{{$f->pages}}" />
-															</div>
+															 value="{{$f->pages}}" readonly="read-only"/>
+															</div><br>
+														</div><br><br>
+														<div class="form-row">
+															<div class="col"><br>
+																<label><strong>Existing Filename:</strong></label>
+																<textarea class="form-control" name="subject" rows="1" readonly="read-only">{{$f->name}} 
+													 			</textarea>
+													 		</div>
 														</div><br>
-														<label><strong>Subject:</strong></label>
-														<textarea class="form-control" name="subject" rows="3" >{{$f->subject}}
-												 		</textarea><br>
+
+														<div class="form-row">
+															<div class="col"><br>
+																<label><strong>File:</strong></label>
+																<input type="file" name="myfile" class="form-control"> 
+													 		</div><br>
+														</div><br>
 									
-														<div style="clear:both;"></div>
-															<div class="modal-footer">
-															<button type="submit" name="save" class="btn btn-primary"><i class="fas fa-upload"></i></button>
-																<button class="btn btn-danger" type="button" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> <i class="fas fa-window-close"></i></button>
-														</div>
+														<div class="modal-footer"><br>
+															<button type="submit" name="submit" class="btn btn-primary">
+																<i class="fas fa-upload"></i>
+															</button>
+															<button class="btn btn-danger" type="button" data-dismiss="modal">
+																<span class="glyphicon glyphicon-remove"></span> 
+																<i class="fas fa-window-close"></i>
+															</button>
+														</div> <br>
 														{{csrf_field()}}
 						  					</form>
 						          </div>
@@ -324,6 +471,84 @@
 						      <!-- /.modal-dialog -->
 						    </div>
 						    <!-- END MODAL EDIT ----->
+
+
+						    <!-- MODAL SUB FILE ----->
+							<div class="modal fade" id="mySubfile{{$f->docu_id}}" aria-hidden="true">
+						      <div class="modal-dialog modal-lg">
+						        <div class="modal-content">
+						          <div class="modal-header">
+
+						          <h3 class="modal-title">SUB FILES</h3>
+						        </div>
+						          <div class="modal-body">
+						  					<p>
+						  						<font face="verdana" color="green" class="float-left">
+						  							<strong>{{$f->subject}} </strong>
+						  						</font>
+						  					</p>
+						            <table class="table table-bordered">
+						              <thead>
+						                <tr>
+										 					<th class="tablecell">FILE NAME</th>
+															  <th class="tablecell">PAGES</th>
+											          <th class="tablecell" width: "auto !important">DATE</th>
+															  <th class="tablecell">DEPARTMENT</th>
+															  <th class="tablecell">EMPLOYEE / OFFICER</th>
+															  <th class="tablecell">PREVIEW</th>
+						                </tr>
+						             	</thead>
+						             	<?php
+														$r_id = $f->id;
+														$subfiles = DB::table('subfiles as sub')
+						                    ->where('sub.id', $r_id)
+						                    ->get();
+													?>
+													@foreach($subfiles as $sub)
+														<tr>
+															<td> {{$sub->name}} </td>
+															<td> {{$sub->pages}} </td>
+															<td> {{$sub->date}} </td>
+															<td> {{$sub->department}} </td>
+															<td> {{$sub->action}} </td>
+															<td> 
+																<a href="http://localhost/ODMS-laravel/storage/app/public/my_uploads/{{$f->department}}/{{ $sub->name }}" target="_blank" class="text-decoration-none">
+																		<button class="btn btn-primary" >
+																			VIEW
+																		</button>
+																</a>
+															</td>
+														</tr>
+													@endforeach
+						            </table>
+						          </div>
+									<div class="modal-footer">
+										<a href="{{ url('admin/pdf_subfile?id='.$f->id) }}" target="_blank" class="text-decoration-none">
+											<button title="PREVIEW" type="button" class="btn btn-success" >
+												<i class="fas fa-file-pdf"></i>
+											</button>
+										</a>
+										<a href="{{ url('admin/subfile?record_id='.$f->docu_id) }}" class="text-decoration-none">
+											<button type="button" class="btn btn-primary" >
+												<i class="fas fa-folder-plus"></i>
+											</button>
+										</a>
+										<button class="btn btn-danger" type="button" data-dismiss="modal">
+										<i class="fas fa-window-close"></i>
+										</button>
+									</div>
+
+						        </div>
+						        <!-- /.modal-content -->
+						      </div>
+						      <!-- /.modal-dialog -->
+						    </div>
+						    <!-- END MODAL SUB FILE ----->
+
+
+
+
+
 
 
 

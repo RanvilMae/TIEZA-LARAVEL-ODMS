@@ -18,6 +18,7 @@ use App\Models\Subfiles;
 use Carbon;
 use PDF;
 use Redirect;
+use File;
 
 class AdminController extends Controller
 {
@@ -62,7 +63,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->Where('id.track', 0)
+                    ->orWhere('id.track', 0)
                     ->count();
             $mytime = Carbon\Carbon::now();
             $month = $mytime->toFormattedDateString();
@@ -238,22 +239,22 @@ class AdminController extends Controller
             $status = Status::orderBy('status')->get();
             $id = $request->session()->get('department');
             $files = DB::table('files as id')
-                    ->where('id.department', $department)
+                    ->where('department', $department)
                     ->count();
             $tid = DB::table('admin as id')
-                    ->where('id.department', $id)
+                    ->where('department', $id)
                     ->first();
             $archive = DB::table('archive as id')
-                    ->where('id.department', $department)
+                    ->where('department', $department)
                     ->count();
                     $admin = DB::table('admin as id')
-                    ->where('id.department', $department)
+                    ->where('department', $department)
                     ->count();
             $users = DB::table('users as id')
-                    ->where('id.department', $department)
+                    ->where('department', $department)
                     ->count();
             $tags = DB::table('tags as id')
-                    ->where('id.tag', $ttid)
+                    ->where('tag', $ttid)
                     ->count();
             $department = $tid->department;
             $newsubject = $request->input('subject') ;
@@ -266,16 +267,20 @@ class AdminController extends Controller
             $newaction = $request->input(['action']);
                 $error  = 0;
                 $N = count($newtags);
+
                 
                 for($i=0; $i < $N; $i++)
 
                 {
                     $check  = DB::table('tags as id')
-                            ->where('id.tag', $newid AND 'id.tag', $newtags[$i])
+                            ->where('tag', $newid )
+                            ->orWhere('tag', $newtags[$i])
                             ->count();
+
                     if($check > 0)
                     {
-                       
+                       $message = 'TAGGING EXIST!';
+                        return View::make('Admin-side/remarks',compact('message'))->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'status' => $status, 'newdocu_id' => $newdocu_id, 'newsubject' => $newsubject, 'newid' => $newid]);
                         
                     }
                     else
@@ -403,7 +408,7 @@ class AdminController extends Controller
                 $newsub_docu = $request->input('sub_docu');
                 $newremarks = $request->input('remarks');
                 $newpages   = $request->input('pages');
-                $newmyfile = $request->file('myfile')->storeAs('public/my_uploads/'.$newdepartment.'/',$request->file('myfile')->getClientOriginalName());
+                $newmyfile = $request->file('myfile')->storeAs('public/subfiles/'.$newdepartment.'/',$request->file('myfile')->getClientOriginalName());
                 $newaction  = $request->input('action');
                 $newdate = $request->input('date');
                 $mytime = Carbon\Carbon::now();
@@ -453,7 +458,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->Where('id.track', 0)
+                    ->orWhere('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
@@ -568,7 +573,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->Where('id.track', 0)
+                    ->orWhere('id.track', 0)
                     ->count();
             
             $mytime = Carbon\Carbon::now();
@@ -611,13 +616,67 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->Where('id.track', 0)
+                    ->orWhere('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
             $month = $mytime->toFormattedDateString();
             $date = $mytime->toTimeString();
             return View::make('Admin-side/remarks')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'mytime' => $mytime, 'tags' => $tags, 'id' => $id, 'newdocu_id' => $id, 'id' => $id, 'status' => $status, 'newsubject' => $newsubject, 'month' => $month, 'date' => $date, 'newid' => $newid]);
+    }
+
+
+    public function tagging(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+
+        $id = $request->session()->get('department');
+        $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+        $department = $tid->department;
+        $ttid = $tid->tid;
+        $mytime = Carbon\Carbon::now();
+        $month = $mytime->toFormattedDateString();
+        $date = $mytime->toTimeString();
+        $mydate = date('Ymd');
+        $depts = Department::orderBy('department')->get();
+        $category = Category::orderBy('category')->get();
+        $id = $request->session()->get('department');
+        $files = DB::table('files as id')
+            ->where('id.department', $department)
+            ->count();
+        $tid = DB::table('admin as id')
+            ->where('id.department', $id)
+            ->first();
+        $archive = DB::table('archive as id')
+            ->where('id.department', $department)
+            ->count();
+        $admin = DB::table('admin as id')
+            ->where('id.department', $department)
+            ->count();
+        $users = DB::table('users as id')
+            ->where('id.department', $department)
+                    ->count();
+        $tags = DB::table('tags as id')
+            ->where('id.tag', $ttid)
+            ->count();
+        $tagging = Admin::all();
+
+        $newdocu_id = $request->input('id');
+        $get_files = DB::table('files as id')
+            ->where('id', $newdocu_id)
+            ->first();
+        $get_tags = DB::table('tags as id')
+            ->where('id', $newdocu_id)
+            ->get();
+        $newsubject = $get_files->subject;
+        $newrecord_id = $get_files->docu_id;
+        $record_id = $request->input('id');
+        return View::make('Admin-side/tagging')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'newdocu_id' => $newdocu_id,  'newrecord_id' => $newrecord_id, 'newsubject' => $newsubject, 'tagging' => $tagging ,'add_id' =>'0', 'get_tags' => $get_tags]);
+
     }
 
 
@@ -655,7 +714,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->Where('id.track', 0)
+                    ->orWhere('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
@@ -700,7 +759,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->Where('id.track', 0)
+                    ->orWhere('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
@@ -728,6 +787,24 @@ class AdminController extends Controller
     
     }
 
+    public function generatePDF_subfile( Request $request)
+    {
+
+        $id = $request->input('id');
+        $subfiles = DB::table('subfiles as id')
+                    ->where('id', $id)
+                    ->get();
+        $files = DB::table('files as id')
+                    ->where('id', $id)
+                    ->first();
+
+        $pdf = PDF::loadView('Admin-side/pdf_subfile', compact('subfiles' , 'files'))->setPaper('a4', 'landscape');
+            
+        return $pdf->stream("invoice.pdf",array("Attachment" => false));
+          
+    
+    }
+
     public function viewfile( Request $request)
     {
 
@@ -737,6 +814,56 @@ class AdminController extends Controller
           
     
     }
+
+
+    public function update_file( Request $request)
+    {
+
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+
+        if ($request->has('submit')) 
+        {
+            $id = $request->id;
+            $department = $request->department;
+            $newmyfile = $request->file('myfile');
+            
+            if ($newmyfile == NULL) {
+               dd('NONE');
+            }else
+            {
+                $newmyfile = $request->file('myfile')->getClientOriginalName();
+                $files = DB::table('files as id')
+                    ->where('name', $newmyfile)
+                    ->orWhere('id', $id)
+                    ->count();
+                if ($files > 0) 
+                {
+
+                    $filename  = $newmyfile;
+                    $destination = 'public/my_uploads/'.$department.'/'.$filename;
+
+                    $path = storage_path().'/app/public/my_uploads/'.$department.'/'.$filename;
+                      if(File::exists($path)){
+                          unlink($path);
+                      }
+
+                   $newmyfile = $request->file('myfile')->storeAs('public/my_uploads/'.$department.'/',$request->file('myfile')->getClientOriginalName());
+
+                          echo"FILE UPLOADED";
+
+                }
+            }
+            
+        }
+          
+    
+    }
+
+
+
+
 
 
     public function logout(Request $request)

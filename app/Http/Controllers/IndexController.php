@@ -22,10 +22,18 @@ class IndexController extends Controller
         {
             $tid = $request->input('tid');
             $password = $request->input('password');
-                //get the user with the email
-            $query = "SELECT * FROM `admin` WHERE `tid` = '$tid' AND password='".md5($password)."'";
-            $result = DB::SELECT($query);
-            if (count($result) > 0 )
+            //     //get the user with the email
+            // $query = "SELECT * FROM `admin` WHERE `tid` = '$tid' AND password='".md5($password)."'";
+            // $result = DB::SELECT($query);
+            $query = DB::table('admin as id')
+                            ->where('tid', $tid)
+                            ->orWhere('password', md5($password))
+                            ->count();
+            $result = DB::table('admin as id')
+                            ->where('tid', $tid)
+                            ->orWhere('password', md5($password))
+                            ->get();
+            if ($query > 0 )
             {
                 $request->session()->put('tid',$tid);
                 $request->session()->put('department',$result[0]->department);

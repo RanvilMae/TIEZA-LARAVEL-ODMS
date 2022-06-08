@@ -190,6 +190,7 @@
   <main role="main" class="flex-shrink-0">
     @yield('mybody')
   </main>
+  <br><br>
 </body>
 <footer class="footer">
     <div class="inner"> <br>
