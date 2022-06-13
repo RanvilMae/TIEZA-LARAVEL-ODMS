@@ -219,8 +219,8 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="h5 font-weight text-uppercase mb-1"><strong>ONLINE ATTENDANCE SYSTEM</strong></div>
-                    <div class="font-weight mb-1">ONLINE ATTENDANCE</br></br></div>
+                    <div class="h5 font-weight text-uppercase mb-1"><strong></strong></div>
+                    <div class="font-weight mb-1"></br></br></div>
                   </div>
                   <div class="col-auto">
                     <i class="far fa-clock fa-3x"></i>

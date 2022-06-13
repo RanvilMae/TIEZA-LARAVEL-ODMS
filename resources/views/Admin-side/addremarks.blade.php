@@ -1,10 +1,11 @@
 @extends('Admin-side/admin_template')
 
 @section('mybody')
-@if(isset($message))
-	<script type='text/javascript'>
-		alert("{{$message}}")
-	</script>
+@if(Session::has('error_message'))
+		<script type='text/javascript'>
+				alert("{{ Session::get('error_message') }}")
+		</script>
+
 @endif
 
 
@@ -77,7 +78,7 @@
 					<button name="save" type="submit" class="btn btn-primary">
 						<i class="fas fa-upload"></i>
 					</button>
-					<a href="{{ url('tagging')}}" class="text-decoration-none">
+					<a href="{{ url('admin/viewdata')}}" class="text-decoration-none">
 						<button type="button" class="btn btn-danger" >
 							<i class="fas fa-window-close"></i>
 						</button>

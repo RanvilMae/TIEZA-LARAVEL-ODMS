@@ -63,7 +63,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->orWhere('id.track', 0)
+                    ->where('id.track', 0)
                     ->count();
             $mytime = Carbon\Carbon::now();
             $month = $mytime->toFormattedDateString();
@@ -217,6 +217,8 @@ class AdminController extends Controller
          }
     }
 
+
+
     public function save_tag(Request $request)
     {
         if($request->session()->get('department')==null){
@@ -274,13 +276,13 @@ class AdminController extends Controller
                 {
                     $check  = DB::table('tags as id')
                             ->where('tag', $newid )
-                            ->orWhere('tag', $newtags[$i])
+                            ->where('tag', $newtags[$i])
                             ->count();
 
                     if($check > 0)
                     {
                        $message = 'TAGGING EXIST!';
-                        return View::make('Admin-side/remarks',compact('message'))->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'status' => $status, 'newdocu_id' => $newdocu_id, 'newsubject' => $newsubject, 'newid' => $newid]);
+                        return View::make('Admin-side/remarks',compact('message'))->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'status' => $status, 'newdocu_id' => $newdocu_id, 'newsubject' => $newsubject, 'newid' => $newid, 'id' => $id]);
                         
                     }
                     else
@@ -303,18 +305,14 @@ class AdminController extends Controller
                 if($error == 0)
                     {
                         $message = 'TAGGING SUCCESSFULLY UPLOADED! \n\nPLEASE ADD DOCUMENT STATUS!';
-                        return View::make('Admin-side/remarks',compact('message'))->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'status' => $status, 'newdocu_id' => $newdocu_id, 'newsubject' => $newsubject, 'newid' => $newid]);
+                        return View::make('Admin-side/remarks',compact('message'))->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'status' => $status, 'newdocu_id' => $newdocu_id, 'newsubject' => $newsubject, 'newid' => $newid, 'id' => $id]);
                     }
                     
                 }
   }
 
- public function pdfqr(){
-        return view('view_qr_code');
-    }
 
-
-  public function save_addremarks(Request $request)
+public function save_tagdept(Request $request)
     {
         if($request->session()->get('department')==null){
         return redirect('/');
@@ -334,6 +332,438 @@ class AdminController extends Controller
             $depts = Department::orderBy('department')->get();
             $category = Category::orderBy('category')->get();
             $status = Status::orderBy('status')->get();
+            $id = $request->session()->get('department');
+            $files = DB::table('files as id')
+                    ->where('department', $department)
+                    ->count();
+            $tid = DB::table('admin as id')
+                    ->where('department', $id)
+                    ->first();
+            $archive = DB::table('archive as id')
+                    ->where('department', $department)
+                    ->count();
+                    $admin = DB::table('admin as id')
+                    ->where('department', $department)
+                    ->count();
+            $users = DB::table('users as id')
+                    ->where('department', $department)
+                    ->count();
+            $tags = DB::table('tags as id')
+                    ->where('tag', $ttid)
+                    ->count();
+            $department = $tid->department;
+            $newsubject = $request->input('subject') ;
+            $newid = $request->input('id') ;
+            $newdocu_id = $request->input('docu_id') ;
+            $newtid = $request->input('tid');
+            $newdate = $request->input('date');
+            $newtags = $request->input(['selector']);
+            $sector = DB::table('department as id')
+            ->where('classification', 'SECTOR')
+            ->orderBy('department', 'ASC')
+            ->get();
+            $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+            $get_files = DB::table('files as id')
+                ->where('id', $newid)
+                ->first();
+            $get_tags = DB::table('tags as id')
+                ->where('id', $newid)
+                ->get();
+
+            $newaction = $request->input(['action']);
+                $error  = 0;
+                $N = count($newtags);
+
+                
+                for($i=0; $i < $N; $i++)
+
+                {
+                    $ctag = $newtags[$i];
+                    $check  = DB::table('tags as id')
+                            ->where('id', $newid)
+                            ->where('tag', $ctag)
+                            ->count();
+
+                    if($check > 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING EXIST!']);
+                        
+                    }
+                    else
+                    {
+                        $newtag = new Tags;
+                        $newtag->primary_id  = NULL;
+                        $newtag->id = $newid ;
+                        $newtag->tag = $newtags[$i];
+                        $newtag->date = $mytime;
+                        $newtag->action = $newaction;
+                        $newtag->docu_id = $newdocu_id;
+                        $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
+                          if(!$result)
+                            {
+                                $error++;
+                            }
+                            
+                    }
+                }
+                if($error == 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING SUCCESSFULLY SAVED!']);
+                    }
+                    
+                }
+  }
+
+
+  public function save_tagperson(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+        if ($request->has('save')) 
+         {
+            $id = $request->session()->get('department');
+            $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+            $department = $tid->department;
+            $ttid = $tid->tid;
+            $mytime = Carbon\Carbon::now();
+            $month = $mytime->toFormattedDateString();
+            $date = $mytime->toTimeString();
+            $mydate = date('Ymd');
+            $depts = Department::orderBy('department')->get();
+            $category = Category::orderBy('category')->get();
+            $status = Status::orderBy('status')->get();
+            $id = $request->session()->get('department');
+            $files = DB::table('files as id')
+                    ->where('department', $department)
+                    ->count();
+            $tid = DB::table('admin as id')
+                    ->where('department', $id)
+                    ->first();
+            $archive = DB::table('archive as id')
+                    ->where('department', $department)
+                    ->count();
+                    $admin = DB::table('admin as id')
+                    ->where('department', $department)
+                    ->count();
+            $users = DB::table('users as id')
+                    ->where('department', $department)
+                    ->count();
+            $tags = DB::table('tags as id')
+                    ->where('tag', $ttid)
+                    ->count();
+            $department = $tid->department;
+            $newsubject = $request->input('subject') ;
+            $newid = $request->input('id') ;
+            $newdocu_id = $request->input('docu_id') ;
+            $newtid = $request->input('tid');
+            $newdate = $request->input('date');
+            $newtags = $request->input(['selector']);
+            $sector = DB::table('department as id')
+            ->where('classification', 'SECTOR')
+            ->orderBy('department', 'ASC')
+            ->get();
+            $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+            $get_files = DB::table('files as id')
+                ->where('id', $newid)
+                ->first();
+            $get_tags = DB::table('tags as id')
+                ->where('id', $newid)
+                ->get();
+
+            $newaction = $request->input(['action']);
+                $error  = 0;
+                $N = count($newtags);
+
+                
+                for($i=0; $i < $N; $i++)
+
+                {
+                    $ctag = $newtags[$i];
+                    $check  = DB::table('tags as id')
+                            ->where('id', $newid)
+                            ->where('tag', $ctag)
+                            ->count();
+
+                    if($check > 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING EXIST!']);
+                        
+                    }
+                    else
+                    {
+                        $newtag = new Tags;
+                        $newtag->primary_id  = NULL;
+                        $newtag->id = $newid ;
+                        $newtag->tag = $newtags[$i];
+                        $newtag->date = $mytime;
+                        $newtag->action = $newaction;
+                        $newtag->docu_id = $newdocu_id;
+                        $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
+                          if(!$result)
+                            {
+                                $error++;
+                            }
+                            
+                    }
+                }
+                if($error == 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING SUCCESSFULLY SAVED!']);
+                    }
+                    
+                }
+  }
+
+
+
+  public function save_tagdiv(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+        if ($request->has('save')) 
+         {
+            $id = $request->session()->get('department');
+            $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+            $department = $tid->department;
+            $ttid = $tid->tid;
+            $mytime = Carbon\Carbon::now();
+            $month = $mytime->toFormattedDateString();
+            $date = $mytime->toTimeString();
+            $mydate = date('Ymd');
+            $depts = Department::orderBy('department')->get();
+            $category = Category::orderBy('category')->get();
+            $status = Status::orderBy('status')->get();
+            $id = $request->session()->get('department');
+            $files = DB::table('files as id')
+                    ->where('department', $department)
+                    ->count();
+            $tid = DB::table('admin as id')
+                    ->where('department', $id)
+                    ->first();
+            $archive = DB::table('archive as id')
+                    ->where('department', $department)
+                    ->count();
+                    $admin = DB::table('admin as id')
+                    ->where('department', $department)
+                    ->count();
+            $users = DB::table('users as id')
+                    ->where('department', $department)
+                    ->count();
+            $tags = DB::table('tags as id')
+                    ->where('tag', $ttid)
+                    ->count();
+            $department = $tid->department;
+            $newsubject = $request->input('subject') ;
+            $newid = $request->input('id') ;
+            $newdocu_id = $request->input('docu_id') ;
+            $newtid = $request->input('tid');
+            $newdate = $request->input('date');
+            $newtags = $request->input(['selector']);
+            $sector = DB::table('department as id')
+            ->where('classification', 'SECTOR')
+            ->orderBy('department', 'ASC')
+            ->get();
+            $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+            $get_files = DB::table('files as id')
+                ->where('id', $newid)
+                ->first();
+            $get_tags = DB::table('tags as id')
+                ->where('id', $newid)
+                ->get();
+
+            $newaction = $request->input(['action']);
+                $error  = 0;
+                $N = count($newtags);
+
+                
+                for($i=0; $i < $N; $i++)
+
+                {
+                    $ctag = $newtags[$i];
+                    $check  = DB::table('tags as id')
+                            ->where('id', $newid)
+                            ->where('tag', $ctag)
+                            ->count();
+
+                    if($check > 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING EXIST!']);
+                        
+                    }
+                    else
+                    {
+                        $newtag = new Tags;
+                        $newtag->primary_id  = NULL;
+                        $newtag->id = $newid ;
+                        $newtag->tag = $newtags[$i];
+                        $newtag->date = $mytime;
+                        $newtag->action = $newaction;
+                        $newtag->docu_id = $newdocu_id;
+                        $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
+                          if(!$result)
+                            {
+                                $error++;
+                            }
+                            
+                    }
+                }
+                if($error == 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING SUCCESSFULLY SAVED!']);
+                    }
+                    
+                }
+  }
+
+
+public function save_tagsector(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+        if ($request->has('save')) 
+         {
+            $id = $request->session()->get('department');
+            $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+            $department = $tid->department;
+            $ttid = $tid->tid;
+            $mytime = Carbon\Carbon::now();
+            $month = $mytime->toFormattedDateString();
+            $date = $mytime->toTimeString();
+            $mydate = date('Ymd');
+            $depts = Department::orderBy('department')->get();
+            $category = Category::orderBy('category')->get();
+            $status = Status::orderBy('status')->get();
+            $id = $request->session()->get('department');
+            $files = DB::table('files as id')
+                    ->where('department', $department)
+                    ->count();
+            $tid = DB::table('admin as id')
+                    ->where('department', $id)
+                    ->first();
+            $archive = DB::table('archive as id')
+                    ->where('department', $department)
+                    ->count();
+                    $admin = DB::table('admin as id')
+                    ->where('department', $department)
+                    ->count();
+            $users = DB::table('users as id')
+                    ->where('department', $department)
+                    ->count();
+            $tags = DB::table('tags as id')
+                    ->where('tag', $ttid)
+                    ->count();
+            $department = $tid->department;
+            $newsubject = $request->input('subject') ;
+            $newid = $request->input('id') ;
+            $newdocu_id = $request->input('docu_id') ;
+            $newtid = $request->input('tid');
+            $newdate = $request->input('date');
+            $newtags = $request->input(['selector']);
+            $sector = DB::table('department as id')
+            ->where('classification', 'SECTOR')
+            ->orderBy('department', 'ASC')
+            ->get();
+            $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+            $get_files = DB::table('files as id')
+                ->where('id', $newid)
+                ->first();
+            $get_tags = DB::table('tags as id')
+                ->where('id', $newid)
+                ->get();
+
+            $newaction = $request->input(['action']);
+                $error  = 0;
+                $N = count($newtags);
+
+                
+                for($i=0; $i < $N; $i++)
+
+                {
+                    $ctag = $newtags[$i];
+                    $check  = DB::table('tags as id')
+                            ->where('id', $newid)
+                            ->where('tag', $ctag)
+                            ->count();
+
+                    if($check > 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING EXIST!']);
+                        
+                    }
+                    else
+                    {
+                        $newtag = new Tags;
+                        $newtag->primary_id  = NULL;
+                        $newtag->id = $newid ;
+                        $newtag->tag = $newtags[$i];
+                        $newtag->date = $mytime;
+                        $newtag->action = $newaction;
+                        $newtag->docu_id = $newdocu_id;
+                        $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
+                          if(!$result)
+                            {
+                                $error++;
+                            }
+                            
+                    }
+                }
+                if($error == 0)
+                    {
+                        return back()->with(['error_message' => 'TAGGING SUCCESSFULLY SAVED!']);
+                    }
+                    
+                }
+  }
+
+
+
+
+ public function pdfqr(){
+        return view('view_qr_code');
+    }
+
+
+  public function save_addremarks(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+        if(isset($_POST['save']))
+         {
+            $id = $request->session()->get('department');
+            $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+            $department = $tid->department;
+            $ttid = $tid->tid;
+            $mytime = Carbon\Carbon::now();
+            $month = $mytime->toFormattedDateString();
+            $date = $mytime->toTimeString();
+            $mydate = date('Ymd');
+            $depts = Department::orderBy('department')->get();
+            $category = Category::orderBy('category')->get();
+            $status = Status::orderBy('id')->get();
             $id = $request->session()->get('department');
             $files = DB::table('files as id')
                     ->where('id.department', $department)
@@ -361,27 +791,21 @@ class AdminController extends Controller
             $newdate = $request->input('date');
             $newstatus = $request->input('status');
             $newremarks = $request->input('remarks');
-
             $newaction = $request->input(['action']);
-
-               
-                        $newtag = new Remarks;
-                        $newtag->primary_id  = NULL;
-                        $newtag->id = $newid ;
-                        $newtag->remarks = $newremarks;
-                        $newtag->date = $mytime;
-                        $newtag->action = $newaction;
-                        $newtag->status = $newstatus;
-                        $newtag->tid = $newtid;
-                        $newtag->department= $newdepartment;
-                        $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
+                $newtag = new Remarks;
+                $newtag->primary_id  = NULL;
+                $newtag->id = $newid ;
+                $newtag->remarks = $newremarks;
+                $newtag->date = $mytime;
+                $newtag->action = $newaction;
+                $newtag->status = $newstatus;
+                $newtag->tid = $newtid;
+                $newtag->department= $newdepartment;
+                $result = $newtag->save() or die('ERROR ADDING NEW PROJECT!');
                        
-                        $message = 'STATUS SUCCESSFULLY SAVED!';
-                        $user = Files::find($qrCode);
-                        
-                        return View::make('Admin-side/addremarks', compact('message'))
-                            ->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'mytime' => $mytime, 'tags' => $tags, 'id' => $id, 'newdocu_id' => $id, 'id' => $id, 'status' => $status, 'newsubject' => $newsubject, 'month' => $month, 'date' => $date, 'newid' => $newid]);
-                    
+                $message = 'STATUS SUCCESSFULLY SAVED!';
+                $user = Files::find($qrCode);
+                return back()->with(['error_message' => 'STATUS SUCCESSFULLY SAVED!']);
                         
                 }
     }
@@ -458,7 +882,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->orWhere('id.track', 0)
+                    ->where('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
@@ -546,6 +970,7 @@ class AdminController extends Controller
         return redirect('/');
     }
 
+
     public function viewdata(Request $request)
     {
         if($request->session()->get('department')==null){
@@ -573,7 +998,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->orWhere('id.track', 0)
+                    ->where('id.track', 0)
                     ->count();
             
             $mytime = Carbon\Carbon::now();
@@ -581,6 +1006,43 @@ class AdminController extends Controller
             $date = $mytime->toTimeString();
             return View::make('Admin-side/viewdata')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date, 'tags' => $tags]);
     }
+
+
+    public function incoming(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+            $id = $request->session()->get('department');
+            $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+            $tiezaid = $tid->tid;
+            $department = $tid->department;
+
+            $tagfiles = DB::table('tags as id')
+                    ->where('id.tag', $tiezaid)
+                    ->get();
+            $archive = DB::table('archive as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $admin = DB::table('admin as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $users = DB::table('users as id')
+                    ->where('id.department', $department)
+                    ->count();
+            $tags = DB::table('tags as id')
+                    ->where('id.tag', $tiezaid)
+                    ->where('id.track', 0)
+                    ->count();
+            
+            $mytime = Carbon\Carbon::now();
+            $month = $mytime->toFormattedDateString();
+            $date = $mytime->toTimeString();
+            return View::make('Admin-side/incoming')->with(['tid' => $tid,'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date, 'tags' => $tags, 'tagfiles' => $tagfiles]);
+    }
+
 
     public function remarks(Request $request)
     {
@@ -616,7 +1078,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->orWhere('id.track', 0)
+                    ->where('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
@@ -663,7 +1125,14 @@ class AdminController extends Controller
         $tags = DB::table('tags as id')
             ->where('id.tag', $ttid)
             ->count();
-        $tagging = Admin::all();
+        $dept_tag = DB::table('department as id')
+            ->where('classification', 'DEPARTMENT')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
 
         $newdocu_id = $request->input('id');
         $get_files = DB::table('files as id')
@@ -675,7 +1144,255 @@ class AdminController extends Controller
         $newsubject = $get_files->subject;
         $newrecord_id = $get_files->docu_id;
         $record_id = $request->input('id');
-        return View::make('Admin-side/tagging')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'newdocu_id' => $newdocu_id,  'newrecord_id' => $newrecord_id, 'newsubject' => $newsubject, 'tagging' => $tagging ,'add_id' =>'0', 'get_tags' => $get_tags]);
+        return View::make('Admin-side/tagging')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'newdocu_id' => $newdocu_id,  'newrecord_id' => $newrecord_id, 'newsubject' => $newsubject, 'tagging' => $tagging ,'add_id' =>'0', 'get_tags' => $get_tags, 'dept_tag' => $dept_tag]);
+
+    }
+
+
+    public function tag_tosector(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+
+        $id = $request->session()->get('department');
+        $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+        $department = $tid->department;
+        $ttid = $tid->tid;
+        $mytime = Carbon\Carbon::now();
+        $month = $mytime->toFormattedDateString();
+        $date = $mytime->toTimeString();
+        $mydate = date('Ymd');
+        $depts = Department::orderBy('department')->get();
+        $category = Category::orderBy('category')->get();
+        $id = $request->session()->get('department');
+        $files = DB::table('files as id')
+            ->where('id.department', $department)
+            ->count();
+        $tid = DB::table('admin as id')
+            ->where('id.department', $id)
+            ->first();
+        $archive = DB::table('archive as id')
+            ->where('id.department', $department)
+            ->count();
+        $admin = DB::table('admin as id')
+            ->where('id.department', $department)
+            ->count();
+        $users = DB::table('users as id')
+            ->where('id.department', $department)
+                    ->count();
+        $tags = DB::table('tags as id')
+            ->where('id.tag', $ttid)
+            ->count();
+
+        $sector = DB::table('department as id')
+            ->where('classification', 'SECTOR')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $newdocu_id = $request->input('id');
+        $get_files = DB::table('files as id')
+            ->where('id', $newdocu_id)
+            ->first();
+        $get_tags = DB::table('tags as id')
+            ->where('id', $newdocu_id)
+            ->get();
+        $newsubject = $get_files->subject;
+        $newrecord_id = $get_files->docu_id;
+        $record_id = $request->input('id');
+        return View::make('Admin-side/tag_tosector')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'newdocu_id' => $newdocu_id,  'newrecord_id' => $newrecord_id, 'newsubject' => $newsubject, 'tagging' => $tagging ,'add_id' =>'0', 'get_tags' => $get_tags, 'sector' => $sector]);
+
+    }
+
+    public function tag_todept(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+
+        $id = $request->session()->get('department');
+        $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+        $department = $tid->department;
+        $ttid = $tid->tid;
+        $mytime = Carbon\Carbon::now();
+        $month = $mytime->toFormattedDateString();
+        $date = $mytime->toTimeString();
+        $mydate = date('Ymd');
+        $depts = Department::orderBy('department')->get();
+        $category = Category::orderBy('category')->get();
+        $id = $request->session()->get('department');
+        $files = DB::table('files as id')
+            ->where('id.department', $department)
+            ->count();
+        $tid = DB::table('admin as id')
+            ->where('id.department', $id)
+            ->first();
+        $archive = DB::table('archive as id')
+            ->where('id.department', $department)
+            ->count();
+        $admin = DB::table('admin as id')
+            ->where('id.department', $department)
+            ->count();
+        $users = DB::table('users as id')
+            ->where('id.department', $department)
+                    ->count();
+        $tags = DB::table('tags as id')
+            ->where('id.tag', $ttid)
+            ->count();
+
+        $tagdept = DB::table('department as id')
+            ->where('classification', 'DEPARTMENT')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $newdocu_id = $request->input('id');
+        $get_files = DB::table('files as id')
+            ->where('id', $newdocu_id)
+            ->first();
+        $get_tags = DB::table('tags as id')
+            ->where('id', $newdocu_id)
+            ->get();
+        $newsubject = $get_files->subject;
+        $newrecord_id = $get_files->docu_id;
+        $record_id = $request->input('id');
+        return View::make('Admin-side/tag_todept')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'newdocu_id' => $newdocu_id,  'newrecord_id' => $newrecord_id, 'newsubject' => $newsubject, 'tagging' => $tagging, 'tagdept' => $tagdept ,'add_id' =>'0', 'get_tags' => $get_tags]);
+
+    }
+
+
+    public function tag_todiv(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+
+        $id = $request->session()->get('department');
+        $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+        $department = $tid->department;
+        $ttid = $tid->tid;
+        $mytime = Carbon\Carbon::now();
+        $month = $mytime->toFormattedDateString();
+        $date = $mytime->toTimeString();
+        $mydate = date('Ymd');
+        $depts = Department::orderBy('department')->get();
+        $category = Category::orderBy('category')->get();
+        $id = $request->session()->get('department');
+        $files = DB::table('files as id')
+            ->where('id.department', $department)
+            ->count();
+        $tid = DB::table('admin as id')
+            ->where('id.department', $id)
+            ->first();
+        $archive = DB::table('archive as id')
+            ->where('id.department', $department)
+            ->count();
+        $admin = DB::table('admin as id')
+            ->where('id.department', $department)
+            ->count();
+        $users = DB::table('users as id')
+            ->where('id.department', $department)
+                    ->count();
+        $tags = DB::table('tags as id')
+            ->where('id.tag', $ttid)
+            ->count();
+        $div = DB::table('department as id')
+            ->where('division', $department)
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $newdocu_id = $request->input('id');
+        $get_files = DB::table('files as id')
+            ->where('id', $newdocu_id)
+            ->first();
+        $get_tags = DB::table('tags as id')
+            ->where('id', $newdocu_id)
+            ->get();
+        $newsubject = $get_files->subject;
+        $newrecord_id = $get_files->docu_id;
+        $record_id = $request->input('id');
+        return View::make('Admin-side/tag_todiv')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'newdocu_id' => $newdocu_id,  'newrecord_id' => $newrecord_id, 'newsubject' => $newsubject, 'tagging' => $tagging ,'add_id' =>'0', 'get_tags' => $get_tags, 'div' => $div]);
+
+    }
+
+
+
+
+
+    public function tag_topersonnel(Request $request)
+    {
+        if($request->session()->get('department')==null){
+        return redirect('/');
+        }
+
+        $id = $request->session()->get('department');
+        $tid = DB::table('admin as id')
+                    ->where('id.department', $id)
+                    ->first();
+        $department = $tid->department;
+        $ttid = $tid->tid;
+        $mytime = Carbon\Carbon::now();
+        $month = $mytime->toFormattedDateString();
+        $date = $mytime->toTimeString();
+        $mydate = date('Ymd');
+        $depts = Department::orderBy('department')->get();
+        $category = Category::orderBy('category')->get();
+        $id = $request->session()->get('department');
+        $files = DB::table('files as id')
+            ->where('id.department', $department)
+            ->count();
+        $tid = DB::table('admin as id')
+            ->where('id.department', $id)
+            ->first();
+        $archive = DB::table('archive as id')
+            ->where('id.department', $department)
+            ->count();
+        $admin = DB::table('admin as id')
+            ->where('id.department', $department)
+            ->count();
+        $users = DB::table('users as id')
+            ->where('id.department', $department)
+                    ->count();
+        $tags = DB::table('tags as id')
+            ->where('id.tag', $ttid)
+            ->count();
+        $person = DB::table('department as id')
+            ->where('department', $department)
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $tagging = DB::table('admin as id')
+            ->orderBy('department', 'ASC')
+            ->get();
+
+        $newdocu_id = $request->input('id');
+        $get_files = DB::table('files as id')
+            ->where('id', $newdocu_id)
+            ->first();
+        $get_tags = DB::table('tags as id')
+            ->where('id', $newdocu_id)
+            ->get();
+        $newsubject = $get_files->subject;
+        $newrecord_id = $get_files->docu_id;
+        $record_id = $request->input('id');
+        return View::make('Admin-side/tag_topersonnel')->with(['tid' => $tid, 'files' => $files, 'archive' => $archive, 'admin' => $admin, 'users' => $users, 'department' => $department, 'month' => $month, 'date' => $date,  'tags' => $tags, 'mytime' => $mytime, 'depts' => $depts, 'category' => $category, 'newdocu_id' => $newdocu_id,  'newrecord_id' => $newrecord_id, 'newsubject' => $newsubject, 'tagging' => $tagging ,'add_id' =>'0', 'get_tags' => $get_tags, 'person' => $person]);
 
     }
 
@@ -714,7 +1431,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->orWhere('id.track', 0)
+                    ->where('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
@@ -759,7 +1476,7 @@ class AdminController extends Controller
                     ->count();
             $tags = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
-                    ->orWhere('id.track', 0)
+                    ->where('id.track', 0)
                     ->count();
 
             $mytime = Carbon\Carbon::now();
@@ -805,6 +1522,26 @@ class AdminController extends Controller
     
     }
 
+
+    public function generatePDF_tagging( Request $request)
+    {
+
+        $id = $request->input('id');
+        $tags = DB::table('tags as id')
+                    ->where('id', $id)
+                    ->get();
+        $files = DB::table('files as id')
+                    ->where('id', $id)
+                    ->first();
+
+        $pdf = PDF::loadView('Admin-side/pdf_tagging', compact('tags' , 'files'))->setPaper('a4', 'landscape');
+            
+        return $pdf->stream("invoice.pdf",array("Attachment" => false));
+          
+    
+    }
+
+
     public function viewfile( Request $request)
     {
 
@@ -836,7 +1573,7 @@ class AdminController extends Controller
                 $newmyfile = $request->file('myfile')->getClientOriginalName();
                 $files = DB::table('files as id')
                     ->where('name', $newmyfile)
-                    ->orWhere('id', $id)
+                    ->where('id', $id)
                     ->count();
                 if ($files > 0) 
                 {

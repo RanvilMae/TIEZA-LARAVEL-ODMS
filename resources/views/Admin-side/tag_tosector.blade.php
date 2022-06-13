@@ -8,11 +8,9 @@
 
 @endif
 
-
-
  <div class="container"> <br>
   	<div class="jumbotron">
-		<form action="save_tagdept" method="post" enctype="multipart/form-data">
+		<form action="save_tagsector" method="post" enctype="multipart/form-data">
 	      <div class="form-group">
 				<h3><strong>DOCUMENT TAGGING</strong></h3><hr>
 				<div id="form-group">
@@ -40,7 +38,7 @@
 										<strong>NAME</strong>
 									</td> 
 									<td align="center" style="border: 2px solid black;" >
-										<strong>DATE</strong>
+										<strong>DATE TAGGED</strong>
 									</td>
 									<tbody>
 										@foreach($get_tags as $gt)
@@ -50,9 +48,18 @@
 								        $admin = DB::table('admin as u')
 								               ->where('tid', $tag_id)
 								               ->get();
+								        $adminc = DB::table('admin as u')
+								               ->where('tid', $tag_id)
+								               ->count();
 											?>
-								      <td style="border: 2px solid black;"><strong>{{$admin->department}} -</strong> {{$admin->lname}}, {{$admin->fname}}</td>
-											<td style="border: 2px solid black;">{{$gt->date}}</td>
+												@if($adminc > 0)
+								      	<td style="border: 2px solid black;">
+								      		@foreach($admin as $a)
+								      			<strong>{{$a->department}} -</strong> {{$a->lname}}, {{$a->fname}}
+								      		@endforeach
+								      	</td>
+												<td style="border: 2px solid black;">{{$gt->date}}</td>
+												@endif
 							      </tr>
 							      @endforeach
 							    </tbody>
@@ -65,18 +72,16 @@
 					<label><strong>TAG TO:</strong></label>
 						<tbody>
 							<br>
-							<label><strong>TAG TO:</strong></label>
-						<tbody>
-							<br>
+							
 							<label><input type="checkbox" class="cb-selector" data-for="selector\[" />  Select All</label>
-							@foreach ($dept_tag as $s)
-								<?php
-									$deptag = $s->department;
-									$tagging = DB::table('admin as id')
-				            ->where('department', $deptag)
-				            ->orderBy('department', 'ASC')
-				            ->get();
-								?>
+							@foreach ($sector as $s)
+							<?php
+							$sec = $s->department;
+							$tagging = DB::table('admin as id')
+		            ->where('department', $sec)
+		            ->orderBy('department', 'ASC')
+		            ->get();
+							?>
 								@foreach ($tagging as $tag)
 								<tr>
 									<td>
@@ -98,7 +103,7 @@
 					<button name="save" type="submit" class="btn btn-primary">
 						<i class="fas fa-upload"></i>
 					</button>
-					<a href="{{ url('tagging')}}" class="text-decoration-none">
+					<a href="{{ url('admin/viewdata')}}" class="text-decoration-none">
 						<button type="button" class="btn btn-danger" >
 							<i class="fas fa-window-close"></i>
 						</button>

@@ -40,7 +40,7 @@
 										<strong>NAME</strong>
 									</td> 
 									<td align="center" style="border: 2px solid black;" >
-										<strong>DATE</strong>
+										<strong>DATE TAGGED</strong>
 									</td>
 									<tbody>
 										@foreach($get_tags as $gt)
@@ -51,7 +51,11 @@
 								               ->where('tid', $tag_id)
 								               ->get();
 											?>
-								      <td style="border: 2px solid black;"><strong>{{$admin->department}} -</strong> {{$admin->lname}}, {{$admin->fname}}</td>
+								      	<td style="border: 2px solid black;">
+								      		@foreach($admin as $a)
+								      			<strong>{{$a->department}} -</strong> {{$a->lname}}, {{$a->fname}}
+								      		@endforeach
+								      	</td>
 											<td style="border: 2px solid black;">{{$gt->date}}</td>
 							      </tr>
 							      @endforeach
@@ -65,18 +69,15 @@
 					<label><strong>TAG TO:</strong></label>
 						<tbody>
 							<br>
-							<label><strong>TAG TO:</strong></label>
-						<tbody>
-							<br>
+							
 							<label><input type="checkbox" class="cb-selector" data-for="selector\[" />  Select All</label>
-							@foreach ($dept_tag as $s)
-								<?php
-									$deptag = $s->department;
-									$tagging = DB::table('admin as id')
-				            ->where('department', $deptag)
-				            ->orderBy('department', 'ASC')
-				            ->get();
-								?>
+							@foreach ($tagdept as $d)
+							<?php
+							$dept = $d->department;
+							$tagging = DB::table('admin as id')
+		            ->where('department', $dept)
+		            ->get();
+							?>
 								@foreach ($tagging as $tag)
 								<tr>
 									<td>
@@ -98,7 +99,7 @@
 					<button name="save" type="submit" class="btn btn-primary">
 						<i class="fas fa-upload"></i>
 					</button>
-					<a href="{{ url('tagging')}}" class="text-decoration-none">
+					<a href="{{ url('/admin/viewdata')}}" class="text-decoration-none">
 						<button type="button" class="btn btn-danger" >
 							<i class="fas fa-window-close"></i>
 						</button>

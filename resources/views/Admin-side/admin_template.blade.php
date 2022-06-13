@@ -54,11 +54,12 @@
         }
 
     .notification .badge {
-    position: absolute;
-    padding: 2px 10px;
-    border-radius: 50%;
-    background-color: red;
-    color: white;
+      position: absolute;
+      padding: 2px 6px;
+      border-radius: 50%;
+      background-color: red;
+      color: white;
+      font-size: .5rem;
     }
         .count-notif{
       vertical-align:middle;
@@ -68,12 +69,12 @@
       color: RED;
       
     } 
-.notif .badges {
-    position: absolute;
-    padding: 0px 6px;
-    border-radius: 100%;
-    background-color: white;
- }
+    .notif .badges {
+        position: absolute;
+        padding: 0px 6px;
+        border-radius: 100%;
+        background-color: white;
+     }
         .footer {
         position: fixed;
         left: 0;
@@ -111,22 +112,32 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link  active" href="{{ url('/admin/incoming')}}">
-              INCOMING
+            <a class="nav-link  active notification" href="{{ url('/admin/incoming')}}">
+              TAGGED FILES
+              <span class="badge">
+                  <?php
+                    $tids = $tid->tid;
+                    $taggs = DB::table('tags as r')
+                        ->where('tag', $tids)
+                        ->where('track', '0')
+                        ->count();
+                    echo $taggs;
+                  ?>
+              </span/>
             </a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="#">ARCHIVE</a>
+           <a class="nav-link" href="#">&nbsp;ARCHIVE</a>
         </li>
       </ul>
     </div>
     <div class=" text-monospace float-right dropdown text-decoration-none " style="color:WHITE">
-              <i class='fas fa-calendar-alt'></i> &nbsp;{{$month}} <br>
-              <i  class='fas fa-clock'></i> &nbsp;{{$date}} <br>
-              <a class="text-monospace " href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" style="color:WHITE" >
-                <i class="fas fa-user"></i> {{$tid->lname}}, {{$tid->fname}} {{$tid->mname}}
-              </a>
-            </div>
+      <i class='fas fa-calendar-alt'></i> &nbsp;{{$month}} <br>
+      <i  class='fas fa-clock'></i> &nbsp;{{$date}} <br>
+      <a class="text-monospace " href="#" data-bs-toggle="modal" data-bs-target="#exampleModal" style="color:WHITE" >
+        <i class="fas fa-user"></i> {{$tid->lname}}, {{$tid->fname}} {{$tid->mname}}
+      </a>
+    </div>
             <!-- Modal -->
             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div class="modal-dialog">
@@ -178,6 +189,36 @@
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+
+    <button type="button" class="btn-sm btn-danger " data-bs-toggle="modal" data-bs-target="#logout">
+      <i class="fas fa-power-off"></i>
+    </button>
+
+    <!-- Modal -->
+            <div class="modal fade" id="logout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title"><strong>LOG OUT</strong></h5>
+                  </div>
+                  <div class="modal-body">
+                    <strong> {{$tid->fname}} </strong> are you sure you want to logout?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger"> 
+                      <a  style="text-decoration:none;color:white;" href="{{ url('/admin/logout')}}">
+                    Logout
+                  </a>
+                </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                      Close
+                    </button>
                   </div>
                 </div>
               </div>

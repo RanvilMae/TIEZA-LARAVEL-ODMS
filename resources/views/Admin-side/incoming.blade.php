@@ -24,23 +24,29 @@
     				<tr >
 				        <th width="15%"><strong>RECORD ID</strong></th>
 				        <th width="20%"><strong>FROM</strong></th>
-						<th width="10%"><strong>CATEGORY</strong></th>
+								<th width="10%"><strong>CATEGORY</strong></th>
 				        <th width="30%"><strong>SUBJECT</strong></th>
-						<th width="10%"><strong>DATE</strong></th>
-						<th width="10%"><strong>FILE TYPE</strong></th>
-						<th align="center" width="15%"><strong>ACTION</strong></th>
+								<th width="10%"><strong>DATE</strong></th>
+								<th width="10%"><strong>FILE TYPE</strong></th>
+								<th align="center" width="15%"><strong>ACTION</strong></th>
 				    </tr>
     			</thead>
     			<tbody class="table-light table-bordered">
-    				@foreach($files as $f)
-    				<tr>
-    					<td >{{$f->docu_id}}</td>
-					    <td >{{$f->fromw}}</td>
-					    <td >{{$f->category}}</td>
-					    <td >{{$f->subject}}</td>
-					    <td >{{$f->date}}</td>
-					    <td >{{$f->restriction}}</td>
-					    <td >
+    				@foreach($tagfiles as $tf)
+    					<?php
+								$files = DB::table('files as fs')
+						      ->where('fs.id', $tf->id)
+						      ->get();
+						  ?>
+							  @foreach ($files as $f)
+		    				<tr>
+			    					<td >{{$f->docu_id}}</td>
+								    <td >{{$f->fromw}}</td>
+								    <td >{{$f->category}}</td>
+								    <td >{{$f->subject}}</td>
+								    <td >{{$f->date}}</td>
+								    <td >{{$f->restriction}}</td>
+								      <td >
 					    	<div class="btn-group btn-group-justified">
 
 					    		<!-- STATUS -->
@@ -62,9 +68,8 @@
 									<!-- SUBFILE -->
 									<button type="button" class="btn btn-primary" title="SUB FILE">
 										<?php
-											$r_id = $f->id;
 											$subfile = DB::table('subfiles as sub')
-					                    ->where('sub.id', $r_id)
+					                    ->where('sub.id', $f->id)
 					                    ->count();
 										?>
 										@if($subfile > 1)
@@ -246,7 +251,7 @@
 												@else
 												@endif
 												<a href="{{ url('admin/tag_topersonnel?id='.$f->id) }}" class="text-decoration-none" style="text-decoration-none;color:BLack;>">
-														&nbsp;&nbsp;&nbsp;<i class="fas fa-user-plus">&nbsp;&nbsp;{{$f->department}} PERSONNEL&nbsp;&nbsp;</i>
+														&nbsp;&nbsp;&nbsp;<i class="fas fa-user-plus">&nbsp;&nbsp;{{$department}} PERSONNEL&nbsp;&nbsp;</i>
 												</a>
 											</div>
 										<button class="btn btn-danger" type="button" data-dismiss="modal">
@@ -581,16 +586,9 @@
 						    </div>
 						    <!-- END MODAL SUB FILE ----->
 
-
-
-
-
-
-
-
-
-					    </td>
-    				</tr>
+								   
+			    				 	@endforeach
+		    				</tr>
     				 @endforeach
     			</tbody>
     		</table>

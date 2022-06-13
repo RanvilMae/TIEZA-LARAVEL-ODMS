@@ -27,11 +27,11 @@ class IndexController extends Controller
             // $result = DB::SELECT($query);
             $query = DB::table('admin as id')
                             ->where('tid', $tid)
-                            ->orWhere('password', md5($password))
+                            ->where('password', md5($password))
                             ->count();
             $result = DB::table('admin as id')
                             ->where('tid', $tid)
-                            ->orWhere('password', md5($password))
+                            ->Where('password', md5($password))
                             ->get();
             if ($query > 0 )
             {
