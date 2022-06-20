@@ -16,6 +16,19 @@
 
 <main role="main" class="container"> <br>
   <div class="jumbotron">
+    <form method="get" action="viewdata.php" style="float: right;">
+    	<div class="row" > 
+
+    			<label style="text-decoration-none;color:RED">Please search and scan barcode here..</label>
+    		<div class="col-lg" >
+    			<input type="text" class="form-control" name="str" placeholder="Search.." value="<?php echo (isset($_GET['str'])) ? $_GET['str'] : ''; ?>">
+    		</div>
+    		<div class="col-lg-3">
+    			<label></label>
+    			<button type="submit" class="btn btn-primary" value="1">Search</button>
+    		</div>
+    	</div>
+    </form> <br>
   	<h3> <strong> {{$department}} Files</strong></h3> <hr>
   	 <div class="row">
     	<div class="col-lg-12">
@@ -581,14 +594,6 @@
 						    </div>
 						    <!-- END MODAL SUB FILE ----->
 
-
-
-
-
-
-
-
-
 					    </td>
     				</tr>
     				 @endforeach
@@ -601,5 +606,6 @@
 </div>
 	<br><br>
 </main>
+
 
 @stop

@@ -255,7 +255,9 @@
 
     <script type="text/javascript">
     $(document).ready( function () {
-        $('#data_table').DataTable();
+        $('#data_table').DataTable({
+          order: [[5, 'DESC']],
+        });
     } );
   </script>
 

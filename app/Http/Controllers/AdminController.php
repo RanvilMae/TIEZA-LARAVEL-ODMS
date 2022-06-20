@@ -19,6 +19,7 @@ use Carbon;
 use PDF;
 use Redirect;
 use File;
+use DataTables;
 
 class AdminController extends Controller
 {
@@ -984,7 +985,7 @@ public function save_tagsector(Request $request)
             $department = $tid->department;
             $files = DB::table('files as id')
                     ->where('id.department', $department)
-                    ->orderBy('id', 'DESC')
+                    ->orderBy('date', 'DESC')
                     ->limit(50)
                     ->get();
             $archive = DB::table('archive as id')
@@ -1023,6 +1024,8 @@ public function save_tagsector(Request $request)
             $tagfiles = DB::table('tags as id')
                     ->where('id.tag', $tiezaid)
                     ->get();
+
+
             $archive = DB::table('archive as id')
                     ->where('id.department', $department)
                     ->count();
